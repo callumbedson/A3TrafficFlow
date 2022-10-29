@@ -71,8 +71,8 @@ def plot_results(y_true, y_preds, names):
         y_pred: List/ndarray, predicted data.
         names: List, Method names.
     """
-    d = '2016-3-4 00:00'
-    x = pd.date_range(d, periods=288, freq='5min')
+    d = '2014-10-1 00:00'
+    x = pd.date_range(d, periods=96, freq='15min')
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -103,7 +103,7 @@ def main():
 
     lag = 12
     file1 = 'data/newTrain.csv'
-    file2 = 'data/test.csv'
+    file2 = 'data/newTest.csv'
     _, _, X_test, y_test, scaler = process_data(file1, file2, lag)
     y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
 
