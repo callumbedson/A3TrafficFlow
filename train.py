@@ -87,7 +87,7 @@ def main(argv):
 
     lag = 12
     config = {"batch": 256, "epochs": 20}
-    file1 = 'data/train.csv'
+    file1 = 'data/newTrain.csv'
     file2 = 'data/test.csv'
     X_train, y_train, _, _, _ = process_data(file1, file2, lag)
 

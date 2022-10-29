@@ -9,13 +9,13 @@ sheet = workbook["Data"]
 newSheet = newWorkbook.active
 
 for cell in sheet['J']:
-    if cell.row > 2 and cell.row < 5:
+    if cell.row > 2:
 
         for timeCell in (sheet["K"+str(cell.row)+":"+"DB"+str(cell.row)])[0]:
             row = newSheet.max_row + 1
             newSheet["A" + str(row)] = cell.value.replace(hour=0,minute=0).strftime("%d/%m/%Y") + " " + str(sheet[get_column_letter(timeCell.column)+"1"].value)
-            print(cell.value)
             newSheet["B"+ str(row)] = timeCell.value
+            newSheet["C"+str(row)] = sheet["A"+str(cell.row)].value
         print(cell.row)
 
 newWorkbook.save("C:/Users/jettc/OneDrive - Swinburne University/3rd Year/Semester 2/Intelligent systems/Assignment A3/filteredData.xlsx")
