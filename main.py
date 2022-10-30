@@ -19,7 +19,7 @@ def MAPE(y_true, y_pred):
     Calculate the mape.
 
     # Arguments
-        y_true: List/ndarray, ture data.
+        y_true: List/ndarray, true data.
         y_pred: List/ndarray, predicted data.
     # Returns
         mape: Double, result data for train.
@@ -91,20 +91,23 @@ def plot_results(y_true, y_preds, names):
     fig.autofmt_xdate()
 
     plt.show()
+    fig.savefig('images/eva.png')
 
 
 def main():
     lstm = load_model('model/lstm.h5')
     gru = load_model('model/gru.h5')
     saes = load_model('model/saes.h5')
-    my_model = load_model('model/my_model.h5')
-    models = [lstm, gru, saes, my_model]
-    names = ['LSTM', 'GRU', 'SAEs', 'My model']
+    #my_model = load_model('model/my_model.h5')
+    models = [lstm, gru, saes]
+    names = ['LSTM', 'GRU', 'SAEs']
 
-    lag = 12
+    lag = 4
     file1 = 'data/newTrain.csv'
+    dfScats = pd.read_csv(file1, encoding='utf-8').fillna(0)
+    scatsUnique = dfScats["SCATS"].unique().tolist()
     file2 = 'data/newTest.csv'
-    _, _, X_test, y_test, scaler = process_data(file1, file2, lag)
+    _, _, X_test, y_test, scaler = process_data(file1, file2, lag, 2000)
     y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
 
     y_preds = []
@@ -113,7 +116,7 @@ def main():
             X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1]))
         else:
             X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
-        file = 'images/' + name + '.png'
+        file = 'images/' + name + '2000.png'
         plot_model(model, to_file=file, show_shapes=True)
         predicted = model.predict(X_test)
         predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
