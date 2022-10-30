@@ -1,5 +1,4 @@
 from openpyxl import load_workbook, Workbook
-from openpyxl.utils.cell import get_column_letter
 import math
 
 newWorkbook = Workbook()
