@@ -11,6 +11,7 @@ from keras.utils.vis_utils import plot_model
 import sklearn.metrics as metrics
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import sys
 warnings.filterwarnings("ignore")
 
 
@@ -94,38 +95,66 @@ def plot_results(y_true, y_preds, names):
     fig.savefig('images/eva.png')
 
 
-def main():
-    lstm = load_model('model/lstm.h5')
-    gru = load_model('model/gru.h5')
-    saes = load_model('model/saes.h5')
-    #my_model = load_model('model/my_model.h5')
-    models = [lstm, gru, saes]
-    names = ['LSTM', 'GRU', 'SAEs']
+def main(command):
+    match command:
+        case "test":
+            lstm = load_model('model/lstm2000.h5')
+            gru = load_model('model/gru2000.h5')
+            saes = load_model('model/saes2000.h5')
+            # my_model = load_model('model/my_model.h5')
+            models = [lstm, gru, saes]
+            names = ['LSTM', 'GRU', 'SAEs']
 
-    lag = 4
-    file1 = 'data/newTrain.csv'
-    dfScats = pd.read_csv(file1, encoding='utf-8').fillna(0)
-    scatsUnique = dfScats["SCATS"].unique().tolist()
-    file2 = 'data/newTest.csv'
-    _, _, X_test, y_test, scaler = process_data(file1, file2, lag, 2000)
-    y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
+            lag = 4
+            file1 = 'data/newTrain.csv'
+            dfScats = pd.read_csv(file1, encoding='utf-8').fillna(0)
+            scatsUnique = dfScats["SCATS"].unique().tolist()
+            file2 = 'data/newTest.csv'
+            _, _, X_test, y_test, scaler = process_data(file1, file2, lag, 2000)
+            y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
 
-    y_preds = []
-    for name, model in zip(names, models):
-        if name == 'SAEs' or name == "My model":
-            X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1]))
-        else:
-            X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
-        file = 'images/' + name + '2000.png'
-        plot_model(model, to_file=file, show_shapes=True)
-        predicted = model.predict(X_test)
-        predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
-        y_preds.append(predicted[:96])
-        print(name)
-        eva_regress(y_test, predicted)
+            y_preds = []
+            for name, model in zip(names, models):
+                if name == 'SAEs' or name == "My model":
+                    X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1]))
+                else:
+                    X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+                file = 'images/' + name + '.png'
+                plot_model(model, to_file=file, show_shapes=True)
+                predicted = model.predict(X_test)
+                predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
+                y_preds.append(predicted[:96])
+                print(name)
+                eva_regress(y_test, predicted)
 
-    plot_results(y_test[: 96], y_preds, names)
+            plot_results(y_test[: 96], y_preds, names)
+
+        case "exit":
+            quit()
+
+        case _:
+            nCommand = command.split(" ")
+            if nCommand[0] == "search":
+                if len(nCommand) > 2:
+                    if nCommand[1].isnumeric() and nCommand[2].isnumeric():
+                        pass
+                    else:
+                        print("Please enter SCATS numbers")
+                else:
+                    print("Please enter SCATS numbers")
+            if nCommand[0] == "scats":
+                pass
+            else:
+                print("Please enter a valid command")
 
 
 if __name__ == '__main__':
-    main()
+    while True:
+        command = input("""Please enter a command:
+        search <source number> <destination number> - Searches for a route from SCATS source to SCATS destination
+            select <route number>: selects route number and displays information
+            back - returns to home
+        scats <number>
+        test - Tests SCATS 2000 with all ML algorithms and displays comparisons
+        exit - Closes the Bundoora SCATS search application\n>""")
+        main(command)

@@ -49,7 +49,6 @@ def train_seas(models, X_train, y_train, name, config, scats):
         name: String, name of model.
         config: Dict, parameter for train.
     """
-
     temp = X_train
     # early = EarlyStopping(monitor='val_loss', patience=30, verbose=0, mode='auto')
 
@@ -63,7 +62,7 @@ def train_seas(models, X_train, y_train, name, config, scats):
         m = models[i]
         m.compile(loss="mse", optimizer="rmsprop", metrics=['mape'])
 
-        m.fit(temp, y_train, batch_size=config["batch"],
+        m.fit(temp, temp, batch_size=config["batch"],
               epochs=config["epochs"],
               validation_split=0.05)
 
@@ -86,18 +85,19 @@ def main(argv):
     args = parser.parse_args()
 
     lag = 4
-    config = {"batch": 256, "epochs": 20}
+    config = {"batch": 256, "epochs": 100}
     file1 = 'data/newTrain.csv'
     dfScats = pd.read_csv(file1, encoding='utf-8').fillna(0)
     scatsUnique = dfScats["SCATS"].unique().tolist()
     file2 = 'data/newTest.csv'
     for scats in scatsUnique:
 
-        X_train, y_train, _, _, _ = process_data(file1, file2, lag, scats)
+        X_train, y_train, _, _, _ = process_data(file1, file1, lag, scats)
         scats = str(scats)
+        print("SCATS Location " + scats)
         if args.model == 'my_model':
             X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
-            m = model.get_my_model([4, 64, 64, 1])
+            m = model.get_my_model([4, 32, 64, 1])
             train_model(m, X_train, y_train, args.model, config, scats)
         if args.model == 'lstm':
             X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
@@ -109,7 +109,7 @@ def main(argv):
             train_model(m, X_train, y_train, args.model, config, scats)
         if args.model == 'saes':
             X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1]))
-            m = model.get_saes([4, 400, 400, 400, 1])
+            m = model.get_saes([4, 100, 100, 100, 1])
             train_seas(m, X_train, y_train, args.model, config, scats)
 
 

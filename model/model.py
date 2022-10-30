@@ -6,9 +6,9 @@ from keras.models import Sequential
 
 def get_my_model(units):
     model = Sequential()
-    model.add(Dense(units[1], input_dim=units[0]), activation="relu")
+    model.add(Dense(units[1], input_dim=units[0], activation="relu"))
     model.add(Dropout(0.2))
-    model.add(Dense(units[2], input_dim=units[0]), activation="relu")
+    model.add(Dense(units[2], input_dim=units[0], activation="relu"))
     model.add(Dropout(0.2))
     model.add(Dense(units[3], activation="sigmoid"))
     return model
