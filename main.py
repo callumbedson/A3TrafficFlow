@@ -195,7 +195,7 @@ def main(command):
         if len(nCommand) > 1:
             volume = scats_volume(int(nCommand[1]))
             if volume != -1:
-                print("SCATS traffic volume at site " + nCommand[1] + " is " + str(volume) + " at " + datetime.now())
+                print("SCATS traffic volume at site " + nCommand[1] + " is " + str(volume) + " at " + str(datetime.now()))
         else:
             print("Please enter SCATS numbers")
     else:
