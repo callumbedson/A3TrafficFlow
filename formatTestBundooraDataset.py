@@ -13,7 +13,7 @@ for cell in sheet['C']:
 
         for timeCell in (sheet["E"+str(cell.row)+":"+"CV"+str(cell.row)])[0]:
             row = newSheet.max_row + 1
-            newSheet["A" + str(row)] = cell.value.replace(hour=0,minute=0).strftime("%d/%m/%Y") + " " + str(sheet[get_column_letter(timeCell.column)+"1"].value)
+            newSheet["A" + str(row)] = cell.value.replace(hour=0,minute=0).strftime("%d/%m/%Y") + " " + str(sheet[get_column_letter(timeCell.column)+"1"].value) #Concat date with respective time increment
             newSheet["B"+ str(row)] = timeCell.value
             newSheet["C"+str(row)] = sheet["A"+str(cell.row)].value
         print(cell.row)
