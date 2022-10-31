@@ -9,6 +9,7 @@ from collections import deque
 #Modified function to convert path to list, which is added to possible routes
 def convertPath(path: List[int]) -> None:
     
+	#Create list of SCATS in a valid route
     pathList = []
     size = len(path)
     for i in range(size):
@@ -17,6 +18,7 @@ def convertPath(path: List[int]) -> None:
     return(pathList)
  
 
+#Checks if SCATS site has already been visited
 def isNotVisited(x: int, path: List[int]) -> int:
  
     size = len(path)
@@ -27,8 +29,8 @@ def isNotVisited(x: int, path: List[int]) -> int:
              
     return 1
  
-# Utility function for finding paths in graph
-# from source to destination
+# Function to find route from source to destination, recording all SCATS
+#Breadth-First Search
 def findpaths(g: List[List[int]], src: int,
               dst: int, v: int) -> None:
                    
@@ -62,7 +64,7 @@ def findpaths(g: List[List[int]], src: int,
                 queue.append(newpath)
     return allRoutes
 
-#deprecated DFS
+#deprecated DFS (attempt 2)
 def findRoute(source, dest):
 	print("Loading Workbook")
 	#Read csv with pandas
@@ -121,7 +123,7 @@ def findRoute(source, dest):
 	print(allRoutes)
 	return attachDist(allRoutes)
 
-#search w heuristic
+#deprecated search w heuristic (attempt 1)
 def urch(source, dest):
 	print("urchin lad")
 	#Read csv with pandas
@@ -186,6 +188,7 @@ def urch(source, dest):
 
 
 #Attaches distance to each path (between 2 SCATS) along a route
+#Final output is a list of routes, each route is a list of paths, each path is a tuple (SCATA, SCATB, SCATC
 def attachDist(allRoutes):
 	df = pd.read_csv("SCATSGraph.csv")
 	#routeCosts is allRoutes with distances attached (tuple for each path)
@@ -206,6 +209,8 @@ def attachDist(allRoutes):
 					A = row["SCATSA"]
 					B = row["SCATSB"]
 					DIST = row["DIST"]
+					#If scat path matches row in the csv of connected scats, add them and the
+					#distance between the two to a tuple
 					if A == scat and B == routes[i]:
 						routeCost.append((A,B,DIST))
 						foundDist = True
@@ -215,7 +220,7 @@ def attachDist(allRoutes):
 		routeCosts.append(routeCost)
 	return routeCosts
 
-#Creates graph array from scats csv
+#Create a matrix of which scats sites are connected by reading csv
 def createGraph(v):
 	g = [[] for _ in range(v)]
 	df = pd.read_csv("SCATSGraph.csv")
@@ -226,6 +231,7 @@ def createGraph(v):
 		g[B].append(A)
 	return g
 
+#Takes two arguements and finds path between them, running both the search and distance function
 def main(src, dst):
 	v = 4350
 	g = createGraph(v)
