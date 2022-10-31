@@ -11,6 +11,7 @@ from keras.utils.vis_utils import plot_model
 import sklearn.metrics as metrics
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import findRoute 
 from datetime import datetime, timedelta
 import sys
 warnings.filterwarnings("ignore")
@@ -161,7 +162,18 @@ def main(command):
     elif nCommand[0] == "search":
         if len(nCommand) > 2:
             if nCommand[1].isnumeric() and nCommand[2].isnumeric():
-                pass
+                allRoutes = findRoute.main(nCommand[1], nCommand[2])
+                for x in range(len(allRoutes)):
+                    print("    ----Route ", x+1,  "----    ")
+                    time = 0
+                    for y in range(len(allRoutes[x])):
+                        #timeMins = 15
+                        #flow = #prediction*(60/timeMins)
+                        #density = #prediction??/allRoutes[x][y][2]*110.5
+                        #speed = flow/density
+                        time += allRoutes[x][y][2]*110.5
+                        print(allRoutes[x][y][0], " -> ", allRoutes[x][y][1])
+                    print("This route will take approximately ", time, " minutes")
             else:
                 print("Please enter SCATS numbers")
         else:

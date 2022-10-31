@@ -226,12 +226,12 @@ def createGraph(v):
 		g[B].append(A)
 	return g
 
-def main(src, det):
+def main(src, dst):
 	v = 4350
 	g = createGraph(v)
 
     # Function for finding the paths
-	return attachDist(findpaths(g, src, dst, v))
+	return attachDist(findpaths(g, int(src), int(dst), v))
 
 #	allRoutes = (findRoute(970, 4264))
 #	for x in range(len(allRoutes)):
