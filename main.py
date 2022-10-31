@@ -11,6 +11,7 @@ from keras.utils.vis_utils import plot_model
 import sklearn.metrics as metrics
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
 import sys
 warnings.filterwarnings("ignore")
 
@@ -95,57 +96,85 @@ def plot_results(y_true, y_preds, names):
     fig.savefig('images/eva.png')
 
 
+def scats_volume(scatsId):
+    lag = 4
+    file1 = 'data/newTrain.csv'
+    dfScats = pd.read_csv(file1, encoding='utf-8').fillna(0)
+    scatsUnique = dfScats["SCATS"].unique().tolist()
+    if scatsId in scatsUnique:
+        _, _, X_test, y_test, scaler = process_data(file1, file1, lag, 2000)
+        y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
+        y_preds = []
+
+        X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1]))
+        predicted = load_model('model/my_model'+str(scatsId)+'.h5').predict(X_test)
+        predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
+        y_preds.append(predicted[:96])
+        now = datetime.now()
+        midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        elapsed = now - midnight
+        number_of_intervals = round(elapsed / timedelta(minutes=15)) - 1
+
+        return predicted[number_of_intervals]
+
+    else:
+        print("Please enter a valid SCATS id contained in the dataset")
+        return -1
+
+
 def main(command):
-    match command:
-        case "test":
-            lstm = load_model('model/lstm2000.h5')
-            gru = load_model('model/gru2000.h5')
-            saes = load_model('model/saes2000.h5')
-            # my_model = load_model('model/my_model.h5')
-            models = [lstm, gru, saes]
-            names = ['LSTM', 'GRU', 'SAEs']
+    nCommand = command.split(" ")
+    if nCommand[0] == "test":
+        lstm = load_model('model/lstm2000.h5')
+        gru = load_model('model/gru2000.h5')
+        saes = load_model('model/saes2000.h5')
+        my_model = load_model('model/my_model2000.h5')
+        models = [lstm, gru, saes, my_model]
+        names = ['LSTM', 'GRU', 'SAEs', 'My model']
 
-            lag = 4
-            file1 = 'data/newTrain.csv'
-            dfScats = pd.read_csv(file1, encoding='utf-8').fillna(0)
-            scatsUnique = dfScats["SCATS"].unique().tolist()
-            file2 = 'data/newTest.csv'
-            _, _, X_test, y_test, scaler = process_data(file1, file2, lag, 2000)
-            y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
+        lag = 4
+        file1 = 'data/newTrain.csv'
+        dfScats = pd.read_csv(file1, encoding='utf-8').fillna(0)
+        file2 = 'data/newTest.csv'
+        _, _, X_test, y_test, scaler = process_data(file1, file2, lag, 2000)
+        y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
 
-            y_preds = []
-            for name, model in zip(names, models):
-                if name == 'SAEs' or name == "My model":
-                    X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1]))
-                else:
-                    X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
-                file = 'images/' + name + '.png'
-                plot_model(model, to_file=file, show_shapes=True)
-                predicted = model.predict(X_test)
-                predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
-                y_preds.append(predicted[:96])
-                print(name)
-                eva_regress(y_test, predicted)
+        y_preds = []
+        for name, model in zip(names, models):
+            if name == 'SAEs' or name == "My model":
+                X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1]))
+            else:
+                X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+            file = 'images/' + name + '.png'
+            plot_model(model, to_file=file, show_shapes=True)
+            predicted = model.predict(X_test)
+            predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
+            y_preds.append(predicted[:96])
+            print(name)
+            eva_regress(y_test, predicted)
 
-            plot_results(y_test[: 96], y_preds, names)
+        plot_results(y_test[: 96], y_preds, names)
 
-        case "exit":
-            quit()
+    elif nCommand[0] == "exit":
+        quit()
 
-        case _:
-            nCommand = command.split(" ")
-            if nCommand[0] == "search":
-                if len(nCommand) > 2:
-                    if nCommand[1].isnumeric() and nCommand[2].isnumeric():
-                        pass
-                    else:
-                        print("Please enter SCATS numbers")
-                else:
-                    print("Please enter SCATS numbers")
-            if nCommand[0] == "scats":
+    elif nCommand[0] == "search":
+        if len(nCommand) > 2:
+            if nCommand[1].isnumeric() and nCommand[2].isnumeric():
                 pass
             else:
-                print("Please enter a valid command")
+                print("Please enter SCATS numbers")
+        else:
+            print("Please enter SCATS numbers")
+    elif nCommand[0] == "scats":
+        if len(nCommand) > 1:
+            volume = scats_volume(int(nCommand[1]))
+            if volume != -1:
+                print("SCATS traffic volume at site " + nCommand[1] + " is " + str(volume) + " at " + datetime.now())
+        else:
+            print("Please enter SCATS numbers")
+    else:
+        print("Please enter a valid command")
 
 
 if __name__ == '__main__':
